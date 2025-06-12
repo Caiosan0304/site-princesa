@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Para minha princesa 💖</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0e17" />
+  <!-- Google Font elegante e redondinho  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Pré‑carrega a variação regular (peso 400) para renderizar mais rápido -->
+  <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJLucHtF.woff2" as="font" type="font/woff2" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* tamanhos base que mudam no mobile por media‑query */
+      --h1-size: 2rem;
+      --mensagem-size: 1rem;
+      --btn-font: 1rem;
+      --slideshow-h: 560px;
+
+      /* cores do divisor */
+      --divider-clr-start: #3a86ff; /* azul‑royal */
+      --divider-clr-end:   #00eaff; /* ciano neon */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: #0b0e17;
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden; /* impede rolagem lateral causada pelos corações */
+    }
+
+    header {
+      padding: 2rem 0 0;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: var(--h1-size);
+      padding: 0 1rem;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* === SLIDESHOW RESPONSIVO === */
+    #slideshow {
+      position: relative;
+      width: min(90%, 420px);
+      aspect-ratio: 3/4;            /* mantém proporção retrato (largura:altura) */
+      margin: 2rem auto;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    /* fallback para navegadores sem suporte a aspect-ratio */
+    @supports not (aspect-ratio: 1/1) {
+      #slideshow { height: var(--slideshow-h); }
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px; /* garante canto arredondado nas imagens também */
+    }
+
+    .slide.active { opacity: 1; }
+
+    /* === BOTÃO DA MÚSICA === */
+    #musicBtn {
+      cursor: pointer;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 40px;
+      font-size: var(--btn-font);
+      font-weight: 500;
+      background: linear-gradient(45deg, #6d5dfc, #46aaff);
+      background-size: 200% 200%;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, filter 0.2s ease, background-position 5s ease;
+    }
+
+    #musicBtn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+      background-position: 100% 0;
+    }
+
+    /* === CONTADOR DE TEMPO === */
+    #counterBox {
+      margin: 2.5rem auto 1rem;
+      padding:0 1rem;
+      width:min(90%,550px);
+    }
+
+    #counterBox h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+
+    #countdown {
+      display: inline-block;
+      padding: 6px 18px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    /* === DIVISOR === */
+    .divider {
+      width: min(85%, 420px);      /* 85% para respirar melhor no mobile */
+      height: 2px;
+      margin: 2rem auto;
+      background: linear-gradient(90deg,var(--divider-clr-start) 0%,var(--divider-clr-end) 100%);
+      border-radius: 2px;
+      box-shadow: 0 0 6px var(--divider-clr-start),
+                  0 0 10px var(--divider-clr-end); /* brilho sutil */
+    }
+
+    /* === MENSAGEM === */
+    .mensagem {
+      width: 90%;
+      max-width: 680px;
+      margin: 2rem auto 4rem;
+      line-height: 1.6;
+      font-size: var(--mensagem-size);
+      font-weight: 300;
+    }
+
+    /* === CORAÇÕES CAINDO === */
+    .heart {
+      position: fixed;
+      top: -10vh;
+      left: var(--x);
+      width: var(--size);
+      height: var(--size);
+      pointer-events: none;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 29.6'><path fill='%23ff2d75' d='M23.6,0c-3.4,0-6.4,2.6-7.6,5.2C14.8,2.6,11.8,0,8.4,0C3.7,0,0,3.7,0,8.4c0,9.9,16,21.2,16,21.2s16-11.3,16-21.2C32,3.7,28.3,0,23.6,0z'/></svg>") center/contain no-repeat;
+      animation: fall var(--duration) linear forwards;
+      opacity: 0.9;
+      z-index: 1000;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Usuários que preferem menos movimento */
+    @media (prefers-reduced-motion: reduce) {
+      .heart { animation: none !important; }
+      #slideshow .slide { transition: none !important; }
+    }
+
+    /* =============================
+       MOBILE AJUSTES (até 600px)  
+    ==============================*/
+    @media (max-width: 600px) {
+      :root {
+        --h1-size: 1.6rem;
+        --mensagem-size: 0.92rem;
+        --btn-font: 0.9rem;
+        --slideshow-h: 70vw; /* altura proporcional à tela */
+      }
+      #counterBox { width: min(84%, 550px); }  /* mais espaço nas laterais */
+      #counterBox h2 { font-size: 1.1rem; }
+      #countdown      { font-size: 0.95rem; padding: 4px 14px; }
+    }
+
+    /* === OVERLAY DE BOAS-VINDAS === */
+#introOverlay{
+  position:fixed; inset:0;
+  background:#0b0e17;             /* mesma cor do site */
+  display:flex; align-items:center; justify-content:center;
+  z-index:5000;                    /* acima de tudo */
+  transition:opacity .6s ease;
+}
+#introOverlay.fade-out{opacity:0; pointer-events:none;}
+
+/* botão “❤️ Clique” */
+#enterBtn{
+  display:flex; align-items:center; gap:.5rem;
+  padding:14px 32px;
+  font-size:1.15rem; font-weight:500;
+  color:#fff; background:transparent;
+  border:2px solid #46aaff; border-radius:14px;
+  cursor:pointer; transition:transform .2s, background .3s;
+}
+#enterBtn:hover{
+  background:rgba(70,170,255,.12);
+  transform:translateY(-2px);
+}
+
+/* trava o scroll enquanto o overlay está ativo */
+body.intro-lock{overflow:hidden;}
+
+  </style>
+</head>
+<body>
+    
+    <!-- OVERLAY SURPRESA -->
+    <div id="introOverlay" class="intro-lock">
+    <button id="enterBtn" aria-label="Entrar no site">
+      <span aria-hidden="true">❤️</span> Clique
+    </button>
+    </div>
+
+  <header>
+    <h1>Feliz Dia dos Namorados, <span id="nome">Geovanna</span>! 💘</h1>
+  </header>
+
+  <main>
+    <!-- SLIDESHOW -->
+    <div id="slideshow" aria-label="Slideshow de lembranças do casal">
+        <div class="slide active"><img src="images/1.jpg" alt="Abraço no parque – nosso primeiro encontro"></div>
+        <div class="slide"><img src="images/2.jpg" alt="Passeio de bicicleta ao pôr do sol" loading="lazy"></div>
+        <div class="slide"><img src="images/3.jpg" alt="Brinde do nosso aniversário de 6 meses" loading="lazy"></div>
+        <div class="slide"><img src="images/4.jpg" alt="Selfie na montanha" loading="lazy"></div>
+        <div class="slide"><img src="images/5.jpg" alt="Nosso piquenique no jardim" loading="lazy"></div>
+        <div class="slide"><img src="images/6.jpg" alt="Dia na praia – castelo de areia" loading="lazy"></div>
+        <div class="slide"><img src="images/7.jpg" alt="Show da nossa banda favorita" loading="lazy"></div>
+        <div class="slide"><img src="images/8.jpg" alt="Café da manhã surpresa" loading="lazy"></div>
+        <div class="slide"><img src="images/9.jpg" alt="Passeio no parque de diversões" loading="lazy"></div>
+        <div class="slide"><img src="images/10.jpg" alt="Viagem de aniversário – mirante" loading="lazy"></div>
+        <div class="slide"><img src="images/11.jpg" alt="Diversão no parque aquático" loading="lazy"></div>
+      </div>
+
+    <!-- BOTÃO PARA TOCAR A MÚSICA -->
+    <button id="musicBtn" aria-label="Tocar ou pausar nossa música">💖 Tocar nossa música</button>
+
+    <!-- CONTADOR "EU TE AMO HÁ" -->
+    <div id="counterBox" aria-live="polite">
+      <h2>❤️ Eu te amo há:</h2>
+      <div id="countdown">carregando...</div>
+    </div>
+
+    <!-- DIVISOR -->
+    <div class="divider" role="presentation"></div>
+
+    <!-- MENSAGEM PERSONALIZADA -->
+    <p class="mensagem">
+      Deus, em Sua infinita bondade, entrelaçou nossos caminhos com um propósito lindo. Desde então, meu coração só faz crescer em carinho e admiração por você. Somos jovens e estamos aprendendo, juntos, a amar e cuidar um do outro passo a passo, e é emocionante perceber quanta vida ainda temos pela frente para escrever lado a lado.<br><br>
+      Quando o mundo lá fora pesa, seu abraço faz tudo ficar leve e possível. Seu sorriso ilumina meus dias, sua presença é meu porto seguro, e até o silêncio ao seu lado vira melodia de paz. Meu maior desejo é permanecer pertinho de você, sentir seu cheiro, encostar minha cabeça no seu ombro e celebrar cada pequeno instante que se torna extraordinário porque estamos juntos.<br><br>
+      Olho para o futuro e vejo cores vivas: nosso cantinho aconchegante, a casa cheia de risadas, a família linda que construiremos sob a bênção de Deus. Sou grato por cada segundo que já vivemos e pelos capítulos maravilhosos que ainda nos aguardam. Com você, tudo faz sentido e meu coração transborda esperança pelo que virá.<br><br>
+      Te amo para sempre, e que Deus continue abençoando nossa história 🙏❤️<br><br>
+      <em>“Assim, eles já não são dois, mas uma só carne. Portanto, o que Deus uniu, ninguém o separe.”</em><br>
+      Mateus 19:6
+    </p>
+  </main>
+
+  <footer>
+    <!-- Espaço para créditos de fotos ou nota de direitos autorais se desejar -->
+  </footer>
+
+  <!-- Coloque seu MP3 na pasta audio/ e ajuste o nome do arquivo -->
+  <audio id="song" src="audio/minhaMusica.mp3"></audio>
+
+  <script>
+    /* === SLIDESHOW === */
+    const slides = document.querySelectorAll(".slide");
+    let current = 0;
+    const slideTimer = setInterval(() => {
+      slides[current].classList.remove("active");
+      current = (current + 1) % slides.length;
+      slides[current].classList.add("active");
+    }, 4000);
+
+    /* === CORAÇÕES CAINDO === */
+    const heartsInterval = 200;
+    let heartsEnabled = true;
+
+    const createHeart = () => {
+      if (!heartsEnabled) return;
+      const heart = document.createElement("span");
+      heart.className = "heart";
+      heart.style.setProperty("--size", Math.random() * 12 + 12 + "px");
+      heart.style.setProperty("--x", Math.random() * 100 + "vw");
+      heart.style.setProperty("--duration", 4 + Math.random() * 4 + "s");
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 8000);
+    };
+    const heartTimer = setInterval(createHeart, heartsInterval);
+
+    document.addEventListener('visibilitychange', () => {
+      heartsEnabled = !document.hidden;
+    });
+
+    /* === MÚSICA === */
+    const btn = document.getElementById("musicBtn");
+    const song = document.getElementById("song");
+    btn.addEventListener("click", () => {
+      if (song.paused) {
+        song.play();
+        btn.textContent = "⏸️ Pausar música";
+      } else {
+        song.pause();
+        btn.textContent = "💖 Tocar nossa música";
+      }
+    });
+
+    /* === CONTADOR DE TEMPO "EU TE AMO HÁ" === */
+    const countdownEl = document.getElementById("countdown");
+    const startDate = new Date("2024-03-16T00:00:00-03:00"); // 16/03/2024 – horário de Brasília
+
+    function diffYMDHMS(start, end) {
+      let years = end.getFullYear() - start.getFullYear();
+      let months = end.getMonth() - start.getMonth();
+      let days = end.getDate() - start.getDate();
+      let hours = end.getHours() - start.getHours();
+      let minutes = end.getMinutes() - start.getMinutes();
+      let seconds = end.getSeconds() - start.getSeconds();
+
+      if (seconds < 0) { seconds += 60; minutes--; }
+      if (minutes < 0) { minutes += 60; hours--; }
+      if (hours < 0)   { hours += 24; days--; }
+
+      if (days < 0) {
+        const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+        days += prevMonth.getDate();
+        months--;
+      }
+      if (months < 0) { months += 12; years--; }
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+
+    const units = ['ano', 'mês', 'dia', 'hora', 'minuto', 'segundo'];
+    const plural = (n, u) => `${n} ${u}${n !== 1 ? 's' : ''}`;
+
+    function updateCounter() {
+      const now = new Date();
+      const { years, months, days, hours, minutes, seconds } = diffYMDHMS(startDate, now);
+      const vals = [years, months, days, hours, minutes, seconds]
+        .map((v, i) => plural(v, units[i]));
+      countdownEl.textContent = vals.join(', ');
+    }
+
+    updateCounter();
+    const counterTimer = setInterval(updateCounter, 1000);
+
+    /* === LIBERA O SITE QUANDO CLICA === */
+const introOverlay = document.getElementById('introOverlay');
+const enterBtn     = document.getElementById('enterBtn');
+
+enterBtn.addEventListener('click', () => {
+  // solta o scroll
+  document.body.classList.remove('intro-lock');
+  // fade-out suave e remoção opcional
+  introOverlay.classList.add('fade-out');
+  setTimeout(() => introOverlay.remove(), 700);
+});
+
+  </script>
+</body>
+</html>
